@@ -18,7 +18,7 @@ static EventGroupHandle_t wifi_event_group;
 /// @param event_id The specific event ID (e.g., WIFI_EVENT_STA_START).
 /// @param event_data Pointer to event-specific data.
 /// @param log Function pointer for logging status messages.
-static void wifi_event_handler(void *arg, esp_event_base_t event_base, 
+static void event_handler(void *arg, esp_event_base_t event_base, 
     int32_t event_id, void* event_data, void (*log)(char* msg)) {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
         esp_wifi_connect();
@@ -35,16 +35,27 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     }
 }
 
-void wifi_init_sta(void (*log)(char* msg)) {
+void wifi_manager_start(const char *ssid, const char *pass) {
     wifi_event_group = xEventGroupCreate();
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    esp_netif_init();
+    esp_event_loop_create_default();
     esp_netif_create_default_wifi_sta();
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL));
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL));
-    
-    wifi_config_t wifi_config
+    esp_wifi_init(&cfg);
+    esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL);
+    esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL);
+
+    wifi_config_t wifi_cfg = {};
+    strncpy((char *)wifi_cfg.sta.ssid, ssid, sizeof(wifi_cfg.sta.ssid));
+    strncpy((char *)wifi_cfg.sta.password, pass, sizeof(wifi_cfg.sta.password));
+    wifi_cfg.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
+
+    esp_wifi_set_mode(WIFI_MODE_STA);
+    esp_wifi_set_config(WIFI_IF_STA, &wifi_cfg);
+    esp_wifi_start();
+}
+
+void wifi_manager_wait_for_connection(void) {
+    xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, false, true, portMAX_DELAY);
 }
