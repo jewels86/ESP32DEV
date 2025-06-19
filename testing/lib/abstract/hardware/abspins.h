@@ -1,5 +1,5 @@
-#ifndef ABSTRACT_H
-#define ABSTRACT_H
+#ifndef ABSPINS_H
+#define ABSPINS_H
 
 #include "driver/gpio.h"
 
@@ -30,4 +30,4 @@ void dPinOUT(int pin);
 void dWrite(int pin, int value);
 int dRead(int pin);
 
-#endif // ABSTRACT_H
+#endif // ABSPINS_H

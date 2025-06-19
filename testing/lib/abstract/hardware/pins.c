@@ -1,4 +1,4 @@
-#include "abstract.h"
+#include "abspins.h"
 #include "driver/gpio.h"
 
 // Convert an integer pin number to a `gpio_num_t` type.
