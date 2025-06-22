@@ -3,6 +3,9 @@
 
 #include "driver/gpio.h"
 
+#define HIGH 1
+#define LOW 0
+
 // Pin utility functions
 
 gpio_num_t dPinNum(int pin);
@@ -21,13 +24,13 @@ int dRead(gpio_num_t pin);
 
 // Pin configuration functions (int versions)
 
-void dPin(int pin, gpio_mode_t mode);
-void dPinIN(int pin);
-void dPinOUT(int pin);
+void dIPin(int pin, gpio_mode_t mode);
+void dIPinIN(int pin);
+void dIPinOUT(int pin);
 
 // Pin I/O functions (int versions)
 
-void dWrite(int pin, int value);
-int dRead(int pin);
+void dIWrite(int pin, int value);
+int dIRead(int pin);
 
 #endif // ABSPINS_H
