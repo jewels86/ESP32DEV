@@ -1,7 +1,7 @@
 #include "abswifi.h"
 #include "absnvs.h"
 
-void app_main() {
+void app_main(void) {
     initialize_nvs();
-    wifi_scan(10, 0);
+    wifi_init_softap("esp32-ap", "", 4, 1);
 }
