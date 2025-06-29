@@ -2,6 +2,7 @@
 #include "absnvs.h"
 #include "abstcp-v4/server.h"
 #include "abstcp-v4/client.h"
+#include "abstcp-v4/tools.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -107,4 +108,28 @@ void app_main(void) {
     xTaskCreate(client_task, "tcp_client", 4096, NULL, 5, NULL);
     
     ESP_LOGI(TAG, "Application setup complete");
+
+    network_scan_options_t *scan_options = malloc(sizeof(network_scan_options_t));
+
+    scan_options->timeout = 1000; 
+    scan_options->start_ip = "192.168.4.1";
+    scan_options->end_ip = "192.168.4.255";
+    scan_options->ports = NULL;
+    scan_options->retry_count = 3;
+
+    network_scan_result_t *scan_result = network_scan(scan_options);
+
+    if (scan_result != NULL) {
+        ESP_LOGI(TAG, "Network scan results:");
+        for (int i = 0; i < scan_result->device_count; i++) {
+            ESP_LOGI(TAG, "Host: %s, Port: %d, Status: %s",
+                     scan_result->devices[i].ipv4,
+                     scan_result->devices[i].open_ports[0],
+                     scan_result->devices[i].online ? "ONLINE" : "OFFLINE");
+        }
+        free_scan_result(scan_result);
+    } else {
+        ESP_LOGI(TAG, "No scan results or scan failed.");
+    }
+    free(scan_options);
 }
